@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/smileyBall-users-backend"
+]
+resolver = "2"

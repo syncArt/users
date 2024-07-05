@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "smileyBall-users-backend": {
+      "candid": "src/smileyBall-users-backend/smileyBall-users-backend.did",
+      "package": "smileyBall-users-backend",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

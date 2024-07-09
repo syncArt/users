@@ -1,0 +1,12 @@
+type SocialMedia = record { nickname : text; name : text };
+type User = record {
+  name : text;
+  description : text;
+  social_media : vec SocialMedia;
+};
+service : {
+  get : (text) -> (User);
+  getSelf : () -> (User);
+  search : (text) -> (opt User);
+  update : (User) -> ();
+}

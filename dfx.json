@@ -1,9 +1,24 @@
 {
   "canisters": {
-    "smileyBall-users-backend": {
-      "candid": "src/smileyBall-users-backend/smileyBall-users-backend.did",
-      "package": "smileyBall-users-backend",
-      "type": "rust"
+    "users-rs": {
+      "package": "users_rs",
+      "type": "rust",
+      "candid": "src/users_rs/users.did",
+      "wasm": "target/wasm32-unknown-unknown/release/users_rs.wasm",
+      "pullable": {
+        "dependencies": [],
+        "wasm_url": "https://github.com/lwshang/pullable/releases/latest/download/service.wasm",
+        "init_guide": "1"
+      }
+    },
+    "users-inter-rs": {
+      "package": "users_inter_rs",
+      "type": "rust",
+      "candid": "src/users_inter_rs/users.did",
+      "wasm": "target/wasm32-unknown-unknown/release/users_inter_rs.wasm",
+      "dependencies": [
+        "users-rs"
+      ]
     }
   },
   "defaults": {

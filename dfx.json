@@ -7,7 +7,7 @@
       "wasm": "target/wasm32-unknown-unknown/release/users_rs.wasm",
       "pullable": {
         "dependencies": [],
-        "wasm_url": "https://github.com/lwshang/pullable/releases/latest/download/service.wasm",
+        "wasm_url": "https://github.com/syncArt/users/releases/latest/download/users_rs.wasm",
         "init_guide": "1"
       }
     },
@@ -18,7 +18,12 @@
       "wasm": "target/wasm32-unknown-unknown/release/users_inter_rs.wasm",
       "dependencies": [
         "users-rs"
-      ]
+      ],
+      "pullable": {
+        "dependencies": ["3bxwx-ziaaa-aaaan-qmpua-cai"],
+        "wasm_url": "https://github.com/syncArt/users/releases/latest/download/users_inter_rs.wasm",
+        "init_guide": "1"
+      }
     }
   },
   "defaults": {

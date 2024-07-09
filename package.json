@@ -10,7 +10,6 @@
     "prebuild": "exit 0",
     "pretest": "exit 0",
     "start": "exit 0",
-    "buildBackend": "cargo build --release --target wasm32-unknown-unknown --package smileyBall_backend",
-    "genCandidBackend": "candid-extractor target/wasm32-unknown-unknown/release/smileyBall_backend.wasm > src/smileyball_backend/smileyBall_backend.did"
+    "buildBackend": "cargo build --release --target wasm32-unknown-unknown"
   }
 }

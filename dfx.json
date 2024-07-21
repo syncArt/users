@@ -4,12 +4,7 @@
       "package": "users_rs",
       "type": "rust",
       "candid": "src/users_rs/users.did",
-      "wasm": "target/wasm32-unknown-unknown/release/users_rs.wasm",
-      "pullable": {
-        "dependencies": [],
-        "wasm_url": "https://github.com/syncArt/users/releases/latest/download/users_rs.wasm",
-        "init_guide": "1"
-      }
+      "wasm": "target/wasm32-unknown-unknown/release/users_rs.wasm"
     },
     "users-inter-rs": {
       "package": "users_inter_rs",
@@ -21,7 +16,7 @@
       ],
       "pullable": {
         "dependencies": ["3bxwx-ziaaa-aaaan-qmpua-cai"],
-        "wasm_url": "https://github.com/syncArt/users/releases/latest/download/users_inter_rs.wasm",
+        "wasm_url": "https://github.com/syncArt/users/releases/latest/download/users-inter-rs.wasm",
         "init_guide": "1"
       }
     }

@@ -14,7 +14,7 @@ struct SocialMedia {
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 struct User {
-    pub name: String,
+    pub nickname: String,
     pub description: String,
     pub social_media: Vec<SocialMedia>,
 }
@@ -25,8 +25,7 @@ thread_local! {
 }
 
 #[query(name = "getSelf", manual_reply = true)]
-fn get_self() -> ManualReply<User> {
-    let id = ic_cdk::api::caller();
+fn get_self(id: Principal) -> ManualReply<User> {
     USERS_STORE.with(|users_store| {
         if let Some(user) = users_store.borrow().get(&id) {
             ManualReply::one(user)
@@ -37,7 +36,7 @@ fn get_self() -> ManualReply<User> {
 }
 
 #[query(manual_reply = true)]
-fn get(name: String) -> ManualReply<User> {
+fn get(id: Principal, name: String) -> ManualReply<User> {
     ID_STORE.with(|id_store| {
         USERS_STORE.with(|users_store| {
             let users_store = users_store.borrow();
@@ -55,23 +54,22 @@ fn get(name: String) -> ManualReply<User> {
 }
 
 #[update]
-fn update(user: User) {
-    let principal_id = ic_cdk::api::caller();
+fn update(id: Principal, user: User) {
     ID_STORE.with(|id_store| {
         id_store
             .borrow_mut()
-            .insert(user.name.clone(), principal_id);
+            .insert(user.name.clone(), id);
     });
 
 
 
     USERS_STORE.with(|users_store| {
-        users_store.borrow_mut().insert(principal_id, user);
+        users_store.borrow_mut().insert(id, user);
     });
 }
 
 #[query(manual_reply = true)]
-fn search(text: String) -> ManualReply<Option<User>> {
+fn search(id: Principal, text: String) -> ManualReply<Option<User>> {
     let text = text.to_lowercase();
     USERS_STORE.with(|users_store| {
         for (_, p) in users_store.borrow().iter() {

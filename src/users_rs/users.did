@@ -5,8 +5,8 @@ type User = record {
   social_media : vec SocialMedia;
 };
 service : {
-  get : (text) -> (User) query;
-  getSelf : () -> (User) query;
-  search : (text) -> (opt User) query;
-  update : (User) -> ();
+  get : (principal, text) -> (User) query;
+  getSelf : (principal, ) -> (User) query;
+  search : (principal, text) -> (opt User) query;
+  update : (principal, User) -> ();
 }

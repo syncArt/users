@@ -1,12 +1,19 @@
-type SocialMedia = record { nickname : text; name : text };
+type LiveVoting = record { moodmoji : Moodmoji; song_id : text };
+type Mood = record { secondary_emoji : text; primary_emoji : text };
+type Moodmoji = record { background : text; mood : Mood };
 type User = record {
-  name : text;
-  description : text;
-  social_media : vec SocialMedia;
+  nickname : text;
+  historical_data : vec VoteRecord;
+  moodmojis : Moodmoji;
+  live_voting : vec LiveVoting;
+};
+type VoteRecord = record {
+  added_at : text;
+  moodmoji : Moodmoji;
+  song_id : text;
 };
 service : {
-  get : (principal, text) -> (User) query;
-  getSelf : (principal, ) -> (User) query;
-  search : (principal, text) -> (opt User) query;
-  update : (principal, User) -> ();
+  get : (text) -> (User) query;
+  getSelf : (principal) -> (User) query;
+  update : (principal, User) -> (text);
 }

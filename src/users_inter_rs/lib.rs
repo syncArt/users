@@ -1,6 +1,4 @@
-use ic_cdk::update;
-use ic_cdk::query;
-use candid::{Principal};
+use ic_cdk::{query, update};
 
 mod declarations;
 use declarations::users_rs::{users_rs, User};
@@ -13,20 +11,13 @@ async fn get_self() -> User {
 
 #[update]
 async fn get(name: String) -> User {
-    let id = ic_cdk::api::caller();
-    users_rs.get(id, name).await.unwrap().0
+    users_rs.get(name).await.unwrap().0
 }
 
 #[update]
-async fn update(user: User) {
+async fn update(user: User) -> String {
     let id = ic_cdk::api::caller();
-    users_rs.update(id, user).await.unwrap()
-}
-
-#[update]
-async fn search(text: String) -> Option<User> {
-    let id = ic_cdk::api::caller();
-    users_rs.search(id, text).await.unwrap().0
+    users_rs.update(id, user).await.unwrap().0
 }
 
 // Enable Candid export

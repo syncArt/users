@@ -1,7 +1,7 @@
 use candid::{CandidType, Deserialize};
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
-struct Mood {
+pub struct Mood {
     name: String,
     primary_emoji: String,
     secondary_emoji: String,

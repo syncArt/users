@@ -2,11 +2,6 @@ use crate::structures::smileyball::Smileyball;
 use crate::structures::thru_today::ThruToday;
 use candid::{CandidType, Deserialize};
 
-enum AppData {
-    Smileyball(Smileyball),
-    ThruToday(ThruToday),
-}
-
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct AppsData {
     connected_apps: Option<Vec<String>>,

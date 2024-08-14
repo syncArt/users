@@ -7,6 +7,7 @@ pub struct Mood {
     secondary_emoji: String,
     background: String,
 }
+
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct Moodmoji {
     mood: Mood,

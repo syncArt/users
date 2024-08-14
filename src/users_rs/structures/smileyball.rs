@@ -4,20 +4,34 @@ use candid::{CandidType, Deserialize};
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct ContestRecord {
     pub song_id: String,
-    pub moodmoji: Moodmoji,
+    pub moodmoji: Option<Moodmoji>,
     pub added_at: String,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct ContestData {
-    lobby: Vec<ContestRecord>,
-    voted: Vec<ContestRecord>,
-    historical_data: Vec<ContestRecord>,
+    lobby: Option<Vec<ContestRecord>>,
+    voted: Option<Vec<ContestRecord>>,
+    historical_data: Option<Vec<ContestRecord>>,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct Smileyball {
     is_suspended: Option<bool>,
-    moodmoji: Moodmoji,
+    moodmoji: Option<Moodmoji>,
     contest: Option<ContestData>,
+}
+
+impl Smileyball {
+    pub fn update_from_user(&mut self, update_data: &Smileyball) {
+        if let Some(is_suspended) = &update_data.is_suspended {
+            self.is_suspended = Some(is_suspended.clone());
+        }
+        if let Some(moodmoji) = &update_data.moodmoji {
+            self.moodmoji = Some(moodmoji.clone());
+        }
+        if let Some(contest) = &update_data.contest {
+            self.contest = Some(contest.clone());
+        }
+    }
 }

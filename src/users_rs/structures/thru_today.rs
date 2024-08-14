@@ -2,32 +2,32 @@ use candid::{CandidType, Deserialize};
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct ToDo {
-    text: String,
-    is_finished: bool,
+    pub text: String,
+    pub is_finished: bool,
 }
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct Meals {
-    breakfast: String,
-    lunch: String,
-    dinner: String,
-    snacks: String,
+    pub breakfast: String,
+    pub lunch: String,
+    pub dinner: String,
+    pub snacks: String,
 }
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct NoteRecord {
-    top3goals: Vec<String>,
-    mood: i8,
-    score: i8,
-    hydration: i8,
-    notes: String,
-    meals: Meals,
-    to_do: Vec<ToDo>,
-    schedule: Vec<String>,
-    follow_ups: Vec<String>,
-    notes_for_tomorrow: String,
+    pub top3goals: Vec<String>,
+    pub mood: i8,
+    pub score: i8,
+    pub hydration: i8,
+    pub notes: String,
+    pub meals: Meals,
+    pub to_do: Vec<ToDo>,
+    pub schedule: Vec<String>,
+    pub follow_ups: Vec<String>,
+    pub notes_for_tomorrow: String,
 }
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct ThruToday {
-    is_suspended: bool,
-    live_data: Vec<NoteRecord>,
-    historical_data: Vec<NoteRecord>,
+    pub is_suspended: bool,
+    pub live_data: Vec<NoteRecord>,
+    pub historical_data: Vec<NoteRecord>,
 }

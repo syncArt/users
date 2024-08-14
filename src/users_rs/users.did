@@ -1,16 +1,19 @@
+type AllowedAppsData = variant {
+  ThruToday : ThruToday;
+  Smileyball : Smileyball;
+};
 type AppsData = record {
-  thru_today : opt ThruToday;
-  smileyball : opt Smileyball;
+  registry : opt vec record { text; AllowedAppsData };
   connected_apps : opt vec text;
 };
 type ContestData = record {
-  voted : vec ContestRecord;
-  lobby : vec ContestRecord;
-  historical_data : vec ContestRecord;
+  voted : opt vec ContestRecord;
+  lobby : opt vec ContestRecord;
+  historical_data : opt vec ContestRecord;
 };
 type ContestRecord = record {
   added_at : text;
-  moodmoji : Moodmoji;
+  moodmoji : opt Moodmoji;
   song_id : text;
 };
 type Meals = record {
@@ -45,7 +48,7 @@ type Result_3 = variant { Ok : text; Err : text };
 type Smileyball = record {
   is_suspended : opt bool;
   contest : opt ContestData;
-  moodmoji : Moodmoji;
+  moodmoji : opt Moodmoji;
 };
 type ThruToday = record {
   is_suspended : bool;
@@ -56,7 +59,7 @@ type ToDo = record { is_finished : bool; "text" : text };
 type User = record {
   apps_data : opt AppsData;
   nickname : text;
-  description : text;
+  description : opt text;
 };
 service : {
   get_all_users : () -> (Result) query;
@@ -64,5 +67,5 @@ service : {
   get_user_from_nickname : (text) -> (Result_2) query;
   get_user_from_principal : (principal) -> (Result_2) query;
   remove : (principal) -> (Result_3);
-  update : (principal, User) -> (Result_2);
+  update : (principal, principal, User) -> (Result_2);
 }

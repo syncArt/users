@@ -31,3 +31,11 @@ pub struct ThruToday {
     pub live_data: Vec<NoteRecord>,
     pub historical_data: Vec<NoteRecord>,
 }
+
+impl ThruToday {
+    pub fn update(&mut self, update_data: ThruToday) {
+        self.is_suspended = update_data.is_suspended;
+        self.live_data = update_data.live_data;
+        self.historical_data = update_data.historical_data;
+    }
+}

@@ -23,7 +23,7 @@ pub struct Smileyball {
 }
 
 impl Smileyball {
-    pub fn update_from_user(&mut self, update_data: &Smileyball) {
+    pub fn update(&mut self, update_data: &Smileyball) {
         if let Some(is_suspended) = &update_data.is_suspended {
             self.is_suspended = Some(is_suspended.clone());
         }

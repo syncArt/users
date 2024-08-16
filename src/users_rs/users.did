@@ -1,10 +1,8 @@
-type AllowedAppsData = variant {
-  ThruToday : ThruToday;
-  Smileyball : Smileyball;
-};
+type AppDataEnum = variant { ThruToday : ThruToday; Smileyball : Smileyball };
+type AppTypeEnum = variant { ThruToday; Smileyball };
 type AppsData = record {
-  registry : opt vec record { text; AllowedAppsData };
-  connected_apps : opt vec text;
+  registry : vec record { text; AppDataEnum };
+  connected_apps : vec AppTypeEnum;
 };
 type ContestData = record {
   voted : opt vec ContestRecord;
@@ -56,8 +54,17 @@ type ThruToday = record {
   live_data : vec NoteRecord;
 };
 type ToDo = record { is_finished : bool; "text" : text };
+type UpdateGeneralInfoInput = record {
+  nickname : text;
+  description : opt text;
+};
+type UpdateOrCreateUserInput = record {
+  apps_data : opt AppDataEnum;
+  general_info : opt UpdateGeneralInfoInput;
+  app_type : AppTypeEnum;
+};
 type User = record {
-  apps_data : opt AppsData;
+  apps_data : AppsData;
   nickname : text;
   description : opt text;
 };
@@ -67,5 +74,5 @@ service : {
   get_user_from_nickname : (text) -> (Result_2) query;
   get_user_from_principal : (principal) -> (Result_2) query;
   remove : (principal) -> (Result_3);
-  update : (principal, principal, User) -> (Result_2);
+  update : (principal, UpdateOrCreateUserInput) -> (Result_2);
 }

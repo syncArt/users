@@ -1,27 +1,26 @@
-use crate::structures::smileyball::Smileyball;
-use crate::structures::thru_today::ThruToday;
+use crate::structures::user::{AppDataEnum, AppTypeEnum};
+use candid::{CandidType, Deserialize};
 
-#[derive(Clone, Debug)]
-pub enum AppDataInputEnum {
-    Smileyball(Smileyball),
-    ThruToday(ThruToday),
-}
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct CreateAccountInput {
     pub nickname: String,
     pub description: Option<String>,
-    pub app_name: AppDataInputEnum,
+    pub app_canister_id: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct UpdateAppDataInput {
-    pub nickname: Option<String>,
-    pub description: Option<String>,
-    pub app_data: AppDataInputEnum,
+    pub app_data: Option<AppDataEnum>,
 }
 
-#[derive(Clone, Debug)]
-pub struct DeleteAppDataInput {
-    pub app_data: AppDataInputEnum,
+#[derive(Clone, Debug, Default, CandidType, Deserialize)]
+pub struct UpdateGeneralInfoInput {
+    pub nickname: String,
+    pub description: Option<String>,
+}
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub struct UpdateOrCreateUserInput {
+    pub general_info: Option<UpdateGeneralInfoInput>,
+    pub apps_data: Option<AppDataEnum>,
+    pub app_type: AppTypeEnum,
 }

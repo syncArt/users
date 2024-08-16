@@ -1,6 +1,9 @@
+use crate::services::entities::{
+    UpdateAppDataInput, UpdateGeneralInfoInput, UpdateOrCreateUserInput,
+};
 use crate::structures::smileyball::Smileyball;
 use crate::structures::thru_today::ThruToday;
-use crate::structures::user::{AllowedAppsData, AppTypes, AppsData, User};
+use crate::structures::user::{AppDataEnum, AppTypeEnum, AppsData, EventEnum, User};
 use crate::utilities::validators;
 use candid::{CandidType, Deserialize, Principal};
 use dotenv::dotenv;
@@ -20,112 +23,85 @@ thread_local! {
         (Principal::from_text(option_env!("CANISTER_ID_USERS_RS").expect("Error!")).unwrap(), "CANISTER_ID_USERS_RS".to_string()),
         (Principal::from_text("2vxsx-fae").unwrap(), "default_user".to_string())
     ]);
-    static ALLOWED_APPS: HashMap<String, AppTypes> = HashMap::from([
-        ("eo3rd-7qaaa-aaaan-qmn6q-cai".to_string(), AppTypes::Smileyball),
-        ("11111-7qaaa-aaaan-qmn6q-cai".to_string(), AppTypes::ThruToday),
-    ]);
 }
 
-fn create_new_user(id: Principal, user: User) -> Result<User, String> {
+fn create_new_user(
+    id: Principal,
+    general_info: UpdateGeneralInfoInput,
+    app_type: AppTypeEnum,
+) -> Result<User, String> {
+    let mut new_user = User::new();
+
+    let mut new_user = new_user
+        .create_account(
+            general_info.nickname.clone(),
+            general_info.description.clone(),
+            app_type.clone(),
+        )
+        .clone();
+
     USERS_STORE.with(|users_store| {
         ID_STORE.with(|id_store| {
-            match validators::check_if_unique_username(user.nickname.as_str(), id) {
+            match validators::check_if_unique_username(general_info.nickname.as_str().clone(), id) {
                 Ok(_) => {
-                    users_store.borrow_mut().insert(id, user.clone());
-                    id_store.borrow_mut().insert(user.nickname.clone(), id);
-                    Ok(user)
+                    users_store.borrow_mut().insert(id, new_user.clone());
+                    id_store
+                        .borrow_mut()
+                        .insert(general_info.nickname.clone(), id);
+                    Ok(new_user)
                 }
                 Err(e) => Err(format!("nickname_exists. {}", e)),
             }
         })
     })
 }
-fn update_app_data_factory(existing_user: &mut User, update_data: User, app_name: AppTypes) {
-    match app_name {
-        AppTypes::Smileyball => {
-            let apps_data = existing_user.apps_data.get_or_insert_with(Default::default);
-            let registry = apps_data.registry.get_or_insert_with(Default::default);
 
-            let smileyball_data = match registry.get("Smileyball") {
-                Some(AllowedAppsData::Smileyball(data)) => data.clone(),
-                _ => Smileyball::default(),
-            };
+fn update_app_data(
+    principal: Principal,
+    update_data: AppDataEnum,
+    app_type: AppTypeEnum,
+) -> Result<User, String> {
+    let existing_user = crate::get_user_from_principal(principal)?;
 
-            let mut updated_smileyball_data = smileyball_data;
+    USERS_STORE.with(|users_store| {
+        let mut users_store_borrowed = users_store.borrow_mut();
+        let mut user = existing_user.clone();
 
-            if let Some(AllowedAppsData::Smileyball(update_smileyball_data)) = update_data
-                .apps_data
-                .as_ref()
-                .and_then(|apps_data| apps_data.registry.as_ref())
-                .and_then(|registry| registry.get("Smileyball"))
-            {
-                updated_smileyball_data.update_from_user(update_smileyball_data);
-            }
-
-            registry.insert(
-                "Smileyball".to_string(),
-                AllowedAppsData::Smileyball(updated_smileyball_data),
-            );
-        }
-        AppTypes::ThruToday => {
-            let apps_data = existing_user.apps_data.get_or_insert_with(Default::default);
-            let registry = apps_data.registry.get_or_insert_with(Default::default);
-
-            let thru_today_data = match registry.get("ThruToday") {
-                Some(AllowedAppsData::ThruToday(data)) => data.clone(),
-                _ => ThruToday::default(),
-            };
-
-            let mut updated_thru_today_data = thru_today_data;
-
-            if let Some(AllowedAppsData::ThruToday(update_thru_today_data)) = update_data
-                .apps_data
-                .as_ref()
-                .and_then(|apps_data| apps_data.registry.as_ref())
-                .and_then(|registry| registry.get("ThruToday"))
-            {
-                // Aktualizacja pól ThruToday
-                updated_thru_today_data.is_suspended = update_thru_today_data.is_suspended;
-
-                if !update_thru_today_data.live_data.is_empty() {
-                    updated_thru_today_data.live_data = update_thru_today_data.live_data.clone();
-                }
-
-                if !update_thru_today_data.historical_data.is_empty() {
-                    updated_thru_today_data.historical_data =
-                        update_thru_today_data.historical_data.clone();
-                }
-            }
-
-            registry.insert(
-                "ThruToday".to_string(),
-                AllowedAppsData::ThruToday(updated_thru_today_data),
-            );
-        }
-        _ => {}
-    }
+        let updated_user = user
+            .update_app_data(update_data.clone(), app_type.clone())
+            .clone();
+        users_store_borrowed.insert(principal, updated_user.clone());
+        Ok(updated_user)
+    })
 }
 
-fn update_user(
-    id: Principal,
-    app_name: AppTypes,
-    app_canister_id: Principal,
-    existing_user: User,
-    update_data: User,
+fn update_general_info(
+    principal: Principal,
+    update_data: UpdateGeneralInfoInput,
 ) -> Result<User, String> {
+    let mut existing_user = match crate::get_user_from_principal(principal) {
+        Ok(user) => user,
+        Err(e) => {
+            return Err(format!("Error retrieving user: {:?}", e));
+        }
+    };
     USERS_STORE.with(|users_store| {
         ID_STORE.with(|id_store| {
-            match validators::check_if_unique_username(update_data.nickname.as_str(), id) {
+            match validators::check_if_unique_username(update_data.nickname.as_str(), principal) {
                 Ok(_) => {
                     let mut id_store_borrowed = id_store.borrow_mut();
                     let mut users_store_borrowed = users_store.borrow_mut();
 
                     id_store_borrowed.remove(&existing_user.nickname);
-                    id_store_borrowed.insert(update_data.nickname.clone(), id);
+                    id_store_borrowed.insert(update_data.nickname.clone(), principal);
 
-                    let mut updated_user = existing_user.clone();
-                    update_app_data_factory(&mut updated_user, update_data.clone(), app_name);
-                    users_store_borrowed.insert(id, updated_user.clone());
+                    let mut updated_user = existing_user
+                        .update_general_info(
+                            update_data.nickname.clone(),
+                            update_data.description.clone(),
+                        )
+                        .clone();
+                    users_store_borrowed.insert(principal, updated_user.clone());
 
                     Ok(updated_user)
                 }
@@ -138,48 +114,56 @@ fn update_user(
 pub fn update_or_create(
     calling_canister: Principal,
     principal: Principal,
-    app_canister_id: Principal,
-    user: User,
+    input: UpdateOrCreateUserInput,
 ) -> Result<User, String> {
     if !check_if_legal_caller(calling_canister) {
         return Err(String::from("illegal_calling_canister"));
     }
 
-    let app_name = match check_if_legal_app(app_canister_id.to_string()) {
-        Some(value) => value,
-        None => {
-            return Err(String::from("illegal_app"));
+    if let Some(general_info) = input.clone().general_info {
+        if general_info.nickname.is_empty() {
+            return Err(String::from("you need to provide nickname"));
         }
-    };
-
-    if user.nickname.is_empty() {
-        return Err(String::from("you need to provide nickname"));
+    } else {
+        return Err(String::from("general_info is missing"));
     }
 
     match crate::get_user_from_principal(principal) {
-        Ok(existing_user) => {
+        Ok(mut existing_user) => {
             ic_cdk::println!("User found, updating: {:?}", existing_user);
-            update_user(
-                principal,
-                app_name,
-                app_canister_id,
-                existing_user.clone(),
-                user.clone(),
-            )
+            if let Some(general_info) = input.clone().general_info {
+                existing_user.update_general_info(general_info.nickname, general_info.description);
+            }
+
+            if let Some(app_data) = input.apps_data.clone() {
+                existing_user.update_app_data(app_data, input.app_type);
+            }
+            Ok(existing_user.clone())
         }
         Err(e) => {
             if e == "user_not_found" {
-                ic_cdk::println!("User not found, creating new user: {:?}", user);
+                ic_cdk::println!("User not found, creating new user");
 
-                match create_new_user(principal, user.clone()) {
-                    Ok(new_user) => {
-                        ic_cdk::println!("New user created successfully: {:?}", new_user);
-                        Ok(new_user)
+                if let Some(general_info) = &input.general_info {
+                    match create_new_user(principal, general_info.clone(), input.app_type.clone()) {
+                        Ok(new_user) => {
+                            ic_cdk::println!("New user created successfully: {:?}", new_user);
+                            Ok(new_user)
+                        }
+                        Err(e) => {
+                            ic_cdk::println!("Failed to create new user: {}", e);
+                            Err(format!("Failed to create new user: {}", e))
+                        }
                     }
-                    Err(e) => {
-                        ic_cdk::println!("Failed to create new user: {}", e);
-                        Err(format!("Failed to create new user: {}", e))
-                    }
+                } else {
+                    ic_cdk::println!(
+                        "You dont have and account and you didnt provide general info: {}",
+                        e
+                    );
+                    Err(format!(
+                        "You dont have and account and you didnt provide general info: {}",
+                        e
+                    ))
                 }
             } else {
                 ic_cdk::println!("An error occurred: {}", e);
@@ -192,11 +176,6 @@ pub fn update_or_create(
 //todo replace with management canister method
 fn check_if_legal_caller(calling_canister: Principal) -> bool {
     ALLOWED_CALLERS.with(|allowed_callers| allowed_callers.keys().any(|&i| i == calling_canister))
-}
-
-//todo replace with management canister method
-fn check_if_legal_app(app_canister_id: String) -> Option<AppTypes> {
-    ALLOWED_APPS.with(|allowed_apps| allowed_apps.get(&app_canister_id).cloned())
 }
 
 pub fn get_user_from_principal(calling_canister: Principal, id: Principal) -> Result<User, String> {

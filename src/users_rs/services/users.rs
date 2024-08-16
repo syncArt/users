@@ -55,23 +55,23 @@ fn create_new_user(
         })
     })
 }
-
 fn update_app_data(
     principal: Principal,
     update_data: AppDataEnum,
     app_type: AppTypeEnum,
 ) -> Result<User, String> {
-    let existing_user = crate::get_user_from_principal(principal)?;
+    let mut existing_user = crate::get_user_from_principal(principal)?;
+
+    // Aktualizuj dane aplikacji użytkownika
+    existing_user.update_app_data(update_data, app_type);
 
     USERS_STORE.with(|users_store| {
         let mut users_store_borrowed = users_store.borrow_mut();
-        let mut user = existing_user.clone();
 
-        let updated_user = user
-            .update_app_data(update_data.clone(), app_type.clone())
-            .clone();
-        users_store_borrowed.insert(principal, updated_user.clone());
-        Ok(updated_user)
+        // Zaktualizuj dane w USERS_STORE
+        users_store_borrowed.insert(principal, existing_user.clone());
+
+        Ok(existing_user.clone())
     })
 }
 
@@ -81,10 +81,9 @@ fn update_general_info(
 ) -> Result<User, String> {
     let mut existing_user = match crate::get_user_from_principal(principal) {
         Ok(user) => user,
-        Err(e) => {
-            return Err(format!("Error retrieving user: {:?}", e));
-        }
+        Err(e) => return Err(format!("Error retrieving user: {:?}", e)),
     };
+
     USERS_STORE.with(|users_store| {
         ID_STORE.with(|id_store| {
             match validators::check_if_unique_username(update_data.nickname.as_str(), principal) {
@@ -92,18 +91,20 @@ fn update_general_info(
                     let mut id_store_borrowed = id_store.borrow_mut();
                     let mut users_store_borrowed = users_store.borrow_mut();
 
+                    // Usuń stary nickname i zaktualizuj użytkownika
                     id_store_borrowed.remove(&existing_user.nickname);
                     id_store_borrowed.insert(update_data.nickname.clone(), principal);
 
-                    let mut updated_user = existing_user
-                        .update_general_info(
-                            update_data.nickname.clone(),
-                            update_data.description.clone(),
-                        )
-                        .clone();
-                    users_store_borrowed.insert(principal, updated_user.clone());
+                    // Aktualizuj dane użytkownika
+                    existing_user.update_general_info(
+                        update_data.nickname.clone(),
+                        update_data.description.clone(),
+                    );
 
-                    Ok(updated_user)
+                    // Zaktualizuj dane w USERS_STORE
+                    users_store_borrowed.insert(principal, existing_user.clone());
+
+                    Ok(existing_user.clone())
                 }
                 Err(e) => Err(format!("nickname_exists. {}", e)),
             }
@@ -132,11 +133,12 @@ pub fn update_or_create(
         Ok(mut existing_user) => {
             ic_cdk::println!("User found, updating: {:?}", existing_user);
             if let Some(general_info) = input.clone().general_info {
-                existing_user.update_general_info(general_info.nickname, general_info.description);
+                update_general_info(principal, general_info);
             }
-
             if let Some(app_data) = input.apps_data.clone() {
-                existing_user.update_app_data(app_data, input.app_type);
+                if let app_type = input.app_type.clone() {
+                    update_app_data(principal, app_data, app_type);
+                }
             }
             Ok(existing_user.clone())
         }

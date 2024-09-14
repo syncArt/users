@@ -40,9 +40,10 @@ type NoteRecord = record {
   follow_ups : vec text;
 };
 type Result = variant { Ok : vec User; Err : text };
-type Result_1 = variant { Ok : opt principal; Err : text };
-type Result_2 = variant { Ok : User; Err : text };
-type Result_3 = variant { Ok : text; Err : text };
+type Result_1 = variant { Ok : opt AppDataEnum; Err : text };
+type Result_2 = variant { Ok : opt principal; Err : text };
+type Result_3 = variant { Ok : User; Err : text };
+type Result_4 = variant { Ok : text; Err : text };
 type Smileyball = record {
   is_suspended : opt bool;
   contest : opt ContestData;
@@ -70,9 +71,10 @@ type User = record {
 };
 service : {
   get_all_users : () -> (Result) query;
-  get_principal_from_nickname : (text) -> (Result_1) query;
-  get_user_from_nickname : (text) -> (Result_2) query;
-  get_user_from_principal : (principal) -> (Result_2) query;
-  remove : (principal) -> (Result_3);
-  update : (principal, UpdateOrCreateUserInput) -> (Result_2);
+  get_app_data_from_user : (text, AppTypeEnum) -> (Result_1) query;
+  get_principal_from_nickname : (text) -> (Result_2) query;
+  get_user_from_nickname : (text) -> (Result_3) query;
+  get_user_from_principal : (principal) -> (Result_3) query;
+  remove : (principal) -> (Result_4);
+  update : (principal, UpdateOrCreateUserInput) -> (Result_3);
 }

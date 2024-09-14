@@ -213,6 +213,34 @@ pub fn get_user_from_nickname(
     })
 }
 
+pub fn get_app_data_from_user(
+    calling_canister: Principal,
+    nickname: String,
+    app_type: AppTypeEnum,
+) -> Result<Option<AppDataEnum>, String> {
+    if !check_if_legal_caller(calling_canister) {
+        return Err(String::from("illegal_caller"));
+    }
+
+    ID_STORE.with(|id_store| {
+        USERS_STORE.with(|users_store| {
+            match id_store
+                .borrow()
+                .get(&nickname)
+                .and_then(|id| users_store.borrow().get(id).cloned()) // Dodane .cloned() aby skopiować użytkownika
+            {
+                Some(user) => {
+                    // Pobierz klucz aplikacji na podstawie AppTypeEnum
+                    let app_key = format!("{:?}", app_type);
+                    // Zwróć odpowiednie dane aplikacji, jeśli istnieją
+                    Ok(user.apps_data.registry.get(&app_key).cloned())
+                }
+                None => Err(String::from("user_not_found")),
+            }
+        })
+    })
+}
+
 pub fn get_principal_from_nickname(
     calling_canister: Principal,
     nickname: String,

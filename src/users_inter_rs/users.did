@@ -1,19 +1,72 @@
-type LiveVoting = record { moodmoji : Moodmoji; song_id : text };
-type Mood = record { secondary_emoji : text; primary_emoji : text };
-type Moodmoji = record { background : text; mood : Mood };
-type User = record {
-  nickname : text;
-  historical_data : vec VoteRecord;
-  moodmojis : Moodmoji;
-  live_voting : vec LiveVoting;
+type AppDataEnum = variant { ThruToday : ThruToday; Smileyball : Smileyball };
+type AppTypeEnum = variant { ThruToday; Smileyball };
+type AppsData = record {
+  registry : vec record { text; AppDataEnum };
+  connected_apps : vec AppTypeEnum;
 };
-type VoteRecord = record {
+type ContestData = record {
+  voted : opt vec ContestRecord;
+  lobby : opt vec ContestRecord;
+  historical_data : opt vec ContestRecord;
+};
+type ContestRecord = record {
   added_at : text;
-  moodmoji : Moodmoji;
+  moodmoji : opt Moodmoji;
   song_id : text;
 };
+type Meals = record {
+  breakfast : text;
+  lunch : text;
+  snacks : text;
+  dinner : text;
+};
+type Mood = record {
+  background : text;
+  secondary_emoji : text;
+  name : text;
+  primary_emoji : text;
+};
+type Moodmoji = record { data : vec vec text; mood : Mood };
+type NoteRecord = record {
+  meals : Meals;
+  to_do : vec ToDo;
+  mood : int8;
+  score : int8;
+  top3goals : vec text;
+  notes : text;
+  hydration : int8;
+  schedule : vec text;
+  notes_for_tomorrow : text;
+  follow_ups : vec text;
+};
+type Result = variant { Ok : User; Err : text };
+type Smileyball = record {
+  is_suspended : opt bool;
+  contest : opt ContestData;
+  moodmoji : opt Moodmoji;
+};
+type ThruToday = record {
+  is_suspended : bool;
+  historical_data : vec NoteRecord;
+  live_data : vec NoteRecord;
+};
+type ToDo = record { is_finished : bool; "text" : text };
+type UpdateGeneralInfoInput = record {
+  nickname : text;
+  description : opt text;
+};
+type UpdateOrCreateUserInput = record {
+  apps_data : opt AppDataEnum;
+  general_info : opt UpdateGeneralInfoInput;
+  app_type : AppTypeEnum;
+};
+type User = record {
+  apps_data : AppsData;
+  nickname : text;
+  description : opt text;
+};
 service : {
-  get : (text) -> (User);
-  getSelf : () -> (User);
-  update : (User) -> (text);
+  getSelf : () -> (Result);
+  get_user_by_nickname : (text) -> (Result);
+  update : (UpdateOrCreateUserInput, AppTypeEnum) -> (Result);
 }

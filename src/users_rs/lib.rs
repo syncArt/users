@@ -1,5 +1,6 @@
 use candid::{CandidType, Deserialize, Principal};
 use ic_cdk::{query, update};
+use crate::structures::user::{AppTypeEnum, AppDataEnum};
 
 mod services;
 mod structures;
@@ -19,6 +20,12 @@ fn get_user_from_nickname(nickname: String) -> Result<User, String> {
     let calling_canister = ic_cdk::api::caller();
 
     users::get_user_from_nickname(calling_canister, nickname)
+}
+
+#[query]
+fn get_app_data_from_user(nickname: String, app_type: AppTypeEnum) -> Result<Option<AppDataEnum>, String> {
+    let calling_canister = ic_cdk::api::caller();
+    users::get_app_data_from_user(calling_canister, nickname, app_type)
 }
 
 #[query]

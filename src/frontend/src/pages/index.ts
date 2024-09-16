@@ -1,3 +1,5 @@
-import {HeroPage} from "./HeroPage";
+import { LoginPage } from "./LoginPage";
+import { Dashboard } from "./Dashboard";
+import { AppsData } from "./AppsData";
 
-export {HeroPage};
+export { LoginPage, AppsData, Dashboard };

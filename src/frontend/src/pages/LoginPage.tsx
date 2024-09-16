@@ -3,33 +3,18 @@ import { HeroText } from "@/components/HeroText";
 import DashedBackground from "../assets/dash-animated-background.svg";
 import IILoginImage from "../assets/II-login-button.svg";
 import { useAuth } from "@/hooks/useAuthClient";
-import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 
-export const HeroPage = () => {
-  const { login, whoamiActor, logout } = useAuth();
-  const [result, setResult] = useState("");
-  const [result2, setResult2] = useState("");
+export const LoginPage = () => {
+  const { login, isAuthenticated } = useAuth();
 
   const handleLogin = () => {
     login();
   };
 
-  useEffect(() => {
-    if (!!whoamiActor) {
-      const handleWhoami = async () => {
-        const whoami = await whoamiActor?.whoami();
-        console.log("whoami", whoami);
-        setResult(whoami);
-      };
-      const handleWhoamiToText = async () => {
-        const whoamiToText = await whoamiActor?.id_to_account();
-        console.log("whoamiToText", whoamiToText);
-        setResult2(whoamiToText);
-      };
-      handleWhoami();
-      handleWhoamiToText();
-    }
-  }, [whoamiActor]);
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" />;
+  }
 
   return (
     <div className="flex w-full">
@@ -56,13 +41,6 @@ export const HeroPage = () => {
         <button onClick={() => handleLogin()}>
           <IILoginImage />
         </button>
-        <input
-          type="text"
-          readOnly
-          id="whoami"
-          value={result}
-          placeholder="......"
-        />
       </div>
     </div>
   );

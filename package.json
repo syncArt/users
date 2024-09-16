@@ -3,7 +3,6 @@
     "node": ">=16.0.0",
     "npm": ">=7.0.0"
   },
-  "type": "module",
   "name": "smileyBall-users",
   "scripts": {
     "build": "exit 0",
@@ -14,5 +13,11 @@
     "buildUsersRs": "cargo build --release --target wasm32-unknown-unknown --package users_rs",
     "extractUsersRs": "candid-extractor target/wasm32-unknown-unknown/release/users_rs.wasm > src/users_rs/users.did",
     "extractUsersInterRs": "candid-extractor target/wasm32-unknown-unknown/release/users_inter_rs.wasm > src/users_inter_rs/users.did"
+  },
+  "workspaces": [
+    "src/frontend"
+  ],
+  "dependencies": {
+    "@dfinity/auth-client": "^2.1.1"
   }
 }

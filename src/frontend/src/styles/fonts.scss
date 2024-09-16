@@ -1,0 +1,97 @@
+@layer base {
+  @font-face {
+    font-family: "Sequel100Black";
+    src: url("/fonts/Sequel100Black-45.woff") format("woff");
+    font-weight: 45;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Sequel100Black";
+    src: url("/fonts/Sequel100Black-55.woff") format("woff");
+    font-weight: 55;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Sequel100Black";
+    src: url("/fonts/Sequel100Black-65.woff") format("woff");
+    font-weight: 65;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Sequel100Black";
+    src: url("/fonts/Sequel100Black-75.woff") format("woff");
+    font-weight: 75;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Sequel100Black";
+    src: url("/fonts/Sequel100Black-85.woff") format("woff");
+    font-weight: 85;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Sequel100Black";
+    src: url("/fonts/Sequel100Black-95.woff") format("woff");
+    font-weight: 95;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Sequel100Black";
+    src: url("/fonts/Sequel100Black-105.woff") format("woff");
+    font-weight: 105;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Sequel100Black";
+    src: url("/fonts/Sequel100Black-115.woff") format("woff");
+    font-weight: 115;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "SpaceMono";
+    src: url("/fonts/SpaceMono-Regular.woff") format("woff");
+    font-weight: 400;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "SpaceMono";
+    src: url("/fonts/SpaceMono-Bold.woff") format("woff");
+    font-weight: 700;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "SpaceMono";
+    src: url("/fonts/SpaceMono-Italic.woff") format("woff");
+    font-weight: 400;
+    font-display: swap;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "SpaceMono";
+    src: url("/fonts/SpaceMono-BoldItalic.woff") format("woff");
+    font-weight: 700;
+    font-display: swap;
+    font-style: italic;
+  }
+}

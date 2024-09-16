@@ -10,6 +10,11 @@ use crate::services::users;
 use crate::structures::user::User;
 
 #[query]
+fn whoami() -> Principal {
+    ic_cdk::api::caller()
+}
+
+#[query]
 fn get_user_from_principal(id: Principal) -> Result<User, String> {
     let calling_canister = ic_cdk::api::caller();
     users::get_user_from_principal(calling_canister, id)

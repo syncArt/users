@@ -20,10 +20,34 @@
         "users-rs"
       ],
       "pullable": {
-        "dependencies": ["3bxwx-ziaaa-aaaan-qmpua-cai"],
+        "dependencies": [
+          "3bxwx-ziaaa-aaaan-qmpua-cai"
+        ],
         "wasm_url": "https://github.com/syncArt/users/releases/latest/download/users_inter_rs.wasm",
         "init_guide": "1"
       }
+    },
+    "frontend": {
+      "dependencies": [
+        "users-rs"
+      ],
+      "source": [
+        "src/frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "frontend"
+    },
+    "internet_identity": {
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "frontend": {},
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "id": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+      "type": "custom",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
     }
   },
   "defaults": {

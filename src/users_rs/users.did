@@ -77,4 +77,5 @@ service : {
   get_user_from_principal : (principal) -> (Result_3) query;
   remove : (principal) -> (Result_4);
   update : (principal, UpdateOrCreateUserInput) -> (Result_3);
+  whoami : () -> (principal) query;
 }

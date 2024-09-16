@@ -1,0 +1,4 @@
+export enum TEXTURE_TYPES {
+  "EMOJI_MART" = "EMOJI_MART",
+  "SMILEY_BALL" = "SMILEY_BALL",
+}

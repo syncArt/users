@@ -34,8 +34,10 @@ async fn get_user_by_nickname(name: String) -> Result<User, String> {
 }
 
 #[update]
-async fn get_general_info_from_user(name: String) -> Result<GeneralInfo, String> {
-    match users_rs.get_general_info_from_user(name).await {
+async fn get_general_info_from_user() -> Result<GeneralInfo, String> {
+    let principal = ic_cdk::api::caller();
+
+    match users_rs.get_general_info_from_user(principal).await {
         Ok((Result2::Ok(user),)) => Ok(user),
         Ok((Result2::Err(e),)) => Err(e),
         Err((_, e)) => Err("Unexpected error occurred.".to_string()),
@@ -44,10 +46,11 @@ async fn get_general_info_from_user(name: String) -> Result<GeneralInfo, String>
 
 #[update]
 async fn get_app_data_from_user(
-    name: String,
     app_type: AppTypeEnum,
 ) -> Result<Option<AppDataEnum>, String> {
-    match users_rs.get_app_data_from_user(name, app_type).await {
+    let principal = ic_cdk::api::caller();
+
+    match users_rs.get_app_data_from_user(principal, app_type).await {
         Ok((Result1::Ok(user),)) => Ok(user),
         Ok((Result1::Err(e),)) => Err(e),
         Err((_, e)) => Err(format!("Failed to fetch app data: {:?}", e)),

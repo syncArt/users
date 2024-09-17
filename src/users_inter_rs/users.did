@@ -70,8 +70,8 @@ type User = record {
 };
 service : {
   getSelf : () -> (Result);
-  get_app_data_from_user : (text, AppTypeEnum) -> (Result_1);
-  get_general_info_from_user : (text) -> (Result_2);
+  get_app_data_from_user : (AppTypeEnum) -> (Result_1);
+  get_general_info_from_user : () -> (Result_2);
   get_user_by_nickname : (text) -> (Result);
   update : (UpdateOrCreateUserInput) -> (Result);
 }

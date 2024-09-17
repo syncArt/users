@@ -29,17 +29,17 @@ fn get_user_from_nickname(nickname: String) -> Result<User, String> {
 
 #[query]
 fn get_app_data_from_user(
-    nickname: String,
+    principal: Principal,
     app_type: AppTypeEnum,
 ) -> Result<Option<AppDataEnum>, String> {
     let calling_canister = ic_cdk::api::caller();
-    users::get_app_data_from_user(calling_canister, nickname, app_type)
+    users::get_app_data_from_user(calling_canister, principal, app_type)
 }
 
 #[query]
-fn get_general_info_from_user(nickname: String) -> Result<GeneralInfo, String> {
+fn get_general_info_from_user(principal: Principal) -> Result<GeneralInfo, String> {
     let calling_canister = ic_cdk::api::caller();
-    users::get_general_info_from_user(calling_canister, nickname)
+    users::get_general_info_from_user(calling_canister, principal)
 }
 
 #[query]

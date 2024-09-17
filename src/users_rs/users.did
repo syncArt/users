@@ -73,8 +73,8 @@ type User = record {
 };
 service : {
   get_all_users : () -> (Result) query;
-  get_app_data_from_user : (text, AppTypeEnum) -> (Result_1) query;
-  get_general_info_from_user : (text) -> (Result_2) query;
+  get_app_data_from_user : (principal, AppTypeEnum) -> (Result_1) query;
+  get_general_info_from_user : (principal) -> (Result_2) query;
   get_principal_from_nickname : (text) -> (Result_3) query;
   get_user_from_nickname : (text) -> (Result_4) query;
   get_user_from_principal : (principal) -> (Result_4) query;

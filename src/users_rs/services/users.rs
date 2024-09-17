@@ -193,32 +193,26 @@ pub fn get_user_from_nickname(
         })
     })
 }
-
 pub fn get_app_data_from_user(
     calling_canister: Principal,
-    nickname: String,
+    principal: Principal,
     app_type: AppTypeEnum,
 ) -> Result<Option<AppDataEnum>, String> {
     if !check_if_legal_caller(calling_canister) {
         return Err(String::from("illegal_caller"));
     }
 
-    ID_STORE.with(|id_store| {
-        USERS_STORE.with(|users_store| {
-            match id_store
-                .borrow()
-                .get(&nickname)
-                .and_then(|id| users_store.borrow().get(id).cloned())
-            {
-                Some(user) => {
-                    let app_key = format!("{:?}", app_type);
-                    Ok(user.apps_data.registry.get(&app_key).cloned())
-                }
-                None => Err(String::from("user_not_found")),
+    USERS_STORE.with(|users_store| {
+        match users_store.borrow().get(&principal).cloned() {
+            Some(user) => {
+                let app_key = format!("{:?}", app_type);
+                Ok(user.apps_data.registry.get(&app_key).cloned())
             }
-        })
+            None => Err(String::from("user_not_found")),
+        }
     })
 }
+
 
 pub fn get_principal_from_nickname(
     calling_canister: Principal,
@@ -252,26 +246,20 @@ pub fn get_all_users(calling_canister: Principal) -> Result<Vec<User>, String> {
 
 pub fn get_general_info_from_user(
     calling_canister: Principal,
-    nickname: String,
+    principal: Principal,
 ) -> Result<GeneralInfo, String> {
     if !check_if_legal_caller(calling_canister) {
         return Err(String::from("illegal_caller"));
     }
 
-    ID_STORE.with(|id_store| {
-        USERS_STORE.with(|users_store| {
-            match id_store
-                .borrow()
-                .get(&nickname)
-                .and_then(|id| users_store.borrow().get(id).cloned())
-            {
-                Some(user) => Ok(GeneralInfo {
-                    nickname: user.nickname,
-                    description: user.description,
-                }),
-                None => Err(String::from("user_not_found")),
-            }
-        })
+    USERS_STORE.with(|users_store| {
+        match users_store.borrow().get(&principal).cloned() {
+            Some(user) => Ok(GeneralInfo {
+                nickname: user.nickname.clone(),
+                description: user.description.clone(),
+            }),
+            None => Err(String::from("user_not_found")),
+        }
     })
 }
 

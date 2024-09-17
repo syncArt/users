@@ -13,11 +13,20 @@ pub enum EventEnum {
 pub enum AppTypeEnum {
     Smileyball,
     ThruToday,
+    General,
+
 }
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub enum AppDataEnum {
     Smileyball(Smileyball),
     ThruToday(ThruToday),
+    General,
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub struct GeneralInfo {
+    pub nickname: String,
+    pub description: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
@@ -54,6 +63,7 @@ impl User {
         let initial_app_data = match app_name {
             AppTypeEnum::Smileyball => AppDataEnum::Smileyball(Smileyball::default()),
             AppTypeEnum::ThruToday => AppDataEnum::ThruToday(ThruToday::default()),
+            AppTypeEnum::General => AppDataEnum::General,
         };
 
         let mut registry = HashMap::new();
@@ -99,6 +109,9 @@ impl User {
                     } else {
                         ic_cdk::println!("Mismatched app data type for ThruToday");
                     }
+                }
+                AppDataEnum::General => {
+                    ic_cdk::println!("General data");
                 }
             }
         } else {

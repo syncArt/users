@@ -1,11 +1,11 @@
 use candid::{CandidType, Deserialize};
-use ic_cdk::{query, update};
+use ic_cdk::update;
 
 mod declarations;
-use crate::declarations::users_rs::{Result3, Smileyball, ThruToday};
-use declarations::users_rs::{
-    users_rs, AppDataEnum, AppTypeEnum, UpdateGeneralInfoInput, UpdateOrCreateUserInput, User,
+use crate::declarations::users_rs::{
+    GeneralInfo, Result1, Result2, Result4, Smileyball, ThruToday,
 };
+use declarations::users_rs::{users_rs, AppDataEnum, AppTypeEnum, UpdateOrCreateUserInput, User};
 
 enum AppData {
     Smileyball(Smileyball),
@@ -18,8 +18,8 @@ async fn get_self() -> Result<User, String> {
 
     match users_rs.get_user_from_principal(id).await {
         Ok((result3,)) => match result3 {
-            Result3::Ok(user) => Ok(user),
-            Result3::Err(e) => Err(e),
+            Result4::Ok(user) => Ok(user),
+            Result4::Err(e) => Err(e),
         },
         Err((_, e)) => Err(format!("Error fetching user: {}", e)),
     }
@@ -28,8 +28,29 @@ async fn get_self() -> Result<User, String> {
 #[update]
 async fn get_user_by_nickname(name: String) -> Result<User, String> {
     match users_rs.get_user_from_nickname(name).await.unwrap().0 {
-        Result3::Ok(user) => Ok(user),
-        Result3::Err(e) => Err(e),
+        Result4::Ok(user) => Ok(user),
+        Result4::Err(e) => Err(e),
+    }
+}
+
+#[update]
+async fn get_general_info_from_user(name: String) -> Result<GeneralInfo, String> {
+    match users_rs.get_general_info_from_user(name).await {
+        Ok((Result2::Ok(user),)) => Ok(user),
+        Ok((Result2::Err(e),)) => Err(e),
+        Err((_, e)) => Err("Unexpected error occurred.".to_string()),
+    }
+}
+
+#[update]
+async fn get_app_data_from_user(
+    name: String,
+    app_type: AppTypeEnum,
+) -> Result<Option<AppDataEnum>, String> {
+    match users_rs.get_app_data_from_user(name, app_type).await {
+        Ok((Result1::Ok(user),)) => Ok(user),
+        Ok((Result1::Err(e),)) => Err(e),
+        Err((_, e)) => Err(format!("Failed to fetch app data: {:?}", e)),
     }
 }
 
@@ -39,15 +60,21 @@ async fn update(user: UpdateOrCreateUserInput) -> Result<User, String> {
 
     match user.app_type {
         AppTypeEnum::Smileyball => match users_rs.update(principal, user).await {
-            Ok((Result3::Ok(updated_user),)) => Ok(updated_user),
-            Ok((Result3::Err(e),)) => Err(format!("Failed to update user for Smileyball: {}", e)),
+            Ok((Result4::Ok(updated_user),)) => Ok(updated_user),
+            Ok((Result4::Err(e),)) => Err(format!("Failed to update user for Smileyball: {}", e)),
             Err((_, e)) => Err(format!("Update failed due to rejection: {}", e)),
         },
         AppTypeEnum::ThruToday => match users_rs.update(principal, user).await {
-            Ok((Result3::Ok(updated_user),)) => Ok(updated_user),
-            Ok((Result3::Err(e),)) => Err(format!("Failed to update user for ThruToday: {}", e)),
+            Ok((Result4::Ok(updated_user),)) => Ok(updated_user),
+            Ok((Result4::Err(e),)) => Err(format!("Failed to update user for ThruToday: {}", e)),
             Err((_, e)) => Err(format!("Update failed due to rejection: {}", e)),
         },
+        AppTypeEnum::General => match users_rs.update(principal, user).await {
+            Ok((Result4::Ok(updated_user),)) => Ok(updated_user),
+            Ok((Result4::Err(e),)) => Err(format!("Failed to update user for General: {}", e)),
+            Err((_, e)) => Err(format!("Update failed due to rejection: {}", e)),
+        },
+        _ => Err("Unexpected error occurred.".to_string()),
     }
 }
 

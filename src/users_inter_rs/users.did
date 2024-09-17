@@ -1,5 +1,9 @@
-type AppDataEnum = variant { ThruToday : ThruToday; Smileyball : Smileyball };
-type AppTypeEnum = variant { ThruToday; Smileyball };
+type AppDataEnum = variant {
+  ThruToday : ThruToday;
+  Smileyball : Smileyball;
+  General;
+};
+type AppTypeEnum = variant { ThruToday; Smileyball; General };
 type AppsData = record {
   registry : vec record { text; AppDataEnum };
   connected_apps : vec AppTypeEnum;
@@ -14,6 +18,7 @@ type ContestRecord = record {
   moodmoji : opt Moodmoji;
   song_id : text;
 };
+type GeneralInfo = record { nickname : text; description : opt text };
 type Meals = record {
   breakfast : text;
   lunch : text;
@@ -40,6 +45,8 @@ type NoteRecord = record {
   follow_ups : vec text;
 };
 type Result = variant { Ok : User; Err : text };
+type Result_1 = variant { Ok : opt AppDataEnum; Err : text };
+type Result_2 = variant { Ok : GeneralInfo; Err : text };
 type Smileyball = record {
   is_suspended : opt bool;
   contest : opt ContestData;
@@ -51,13 +58,9 @@ type ThruToday = record {
   live_data : vec NoteRecord;
 };
 type ToDo = record { is_finished : bool; "text" : text };
-type UpdateGeneralInfoInput = record {
-  nickname : text;
-  description : opt text;
-};
 type UpdateOrCreateUserInput = record {
   apps_data : opt AppDataEnum;
-  general_info : opt UpdateGeneralInfoInput;
+  general_info : opt GeneralInfo;
   app_type : AppTypeEnum;
 };
 type User = record {
@@ -67,6 +70,8 @@ type User = record {
 };
 service : {
   getSelf : () -> (Result);
+  get_app_data_from_user : (text, AppTypeEnum) -> (Result_1);
+  get_general_info_from_user : (text) -> (Result_2);
   get_user_by_nickname : (text) -> (Result);
   update : (UpdateOrCreateUserInput) -> (Result);
 }

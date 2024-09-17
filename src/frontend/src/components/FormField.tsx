@@ -1,23 +1,30 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import { FormFieldData, UserDataType } from "@/pages/Dashboard";
 
 type InputType = "text" | "number";
 
 type ValueType<T extends InputType> = T extends "number" ? number : string;
 
 interface FormFieldProps<T extends InputType> {
+  name: keyof UserDataType;
   fieldName: string;
-  initVal: ValueType<T>;
-  onChange: (params: { name: string; value: ValueType<T> }) => void;
+  initVal?: string;
+  onChange: (data: FormFieldData) => void;
   type?: T;
 }
 
 export const FormField = <T extends InputType>({
+                                                 name,
                                                  fieldName,
                                                  initVal,
                                                  onChange,
                                                  type = "text" as T
                                                }: FormFieldProps<T>) => {
-  const [value, setValue] = useState<string>(String(initVal));
+  const [value, setValue] = useState<string>(String(initVal || ""));
+
+  useEffect(() => {
+    setValue(initVal || "");
+  }, [initVal]);
 
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -30,7 +37,7 @@ export const FormField = <T extends InputType>({
       parsedValue = newValue as ValueType<T>;
     }
 
-    onChange({ name: fieldName, value: parsedValue });
+    onChange({ name, value: parsedValue });
   };
 
   return (

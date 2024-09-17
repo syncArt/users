@@ -2,13 +2,48 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuthClient";
 import { FormField } from "@/components/FormField";
 import { useNavigate } from "react-router-dom";
+import { users_inter_rs } from "declarations/users-inter-rs";
+import {
+  optionalCandidValueToValue,
+  valueToOptionalCandidValue
+} from "@/utils";
+
+export type UserDataType = {
+  nickname: string;
+  description?: string;
+};
+
+export type FormFieldData = {
+  name: keyof UserDataType;
+  value: string | number;
+};
 
 export const Dashboard = () => {
   const [result, setResult] = useState("");
-  const [updatedData, setNewData] = useState({});
+  const [userData, setUserData] = useState<UserDataType>({
+    description: "",
+    nickname: ""
+  });
 
   const { whoamiActor, logout } = useAuth();
   const navigate = useNavigate();
+
+  const handleUserGeneralData = async () => {
+    await users_inter_rs.get_general_info_from_user().then((res) => {
+      if ("Ok" in res) {
+        const data = res.Ok;
+
+        const parsedData = {
+          nickname: data.nickname,
+          description: optionalCandidValueToValue(data.description)
+        };
+
+        setUserData(parsedData);
+      } else {
+        console.error("Error:", res.Err);
+      }
+    });
+  };
 
   useEffect(() => {
     if (!!whoamiActor) {
@@ -20,8 +55,31 @@ export const Dashboard = () => {
     }
   }, [whoamiActor]);
 
-  const handleSave = () => {
-    console.log(updatedData);
+  useEffect(() => {
+    handleUserGeneralData();
+  }, []);
+
+  const handleSave = async () => {
+    console.log(userData);
+    await users_inter_rs
+      .update({
+        app_type: { General: null },
+        general_info: [
+          {
+            ...userData,
+            description: valueToOptionalCandidValue(userData.description)
+          }
+        ],
+        apps_data: []
+      })
+      .then((res) => {
+        console.log("saved");
+        handleUserGeneralData();
+      });
+  };
+
+  const handleFieldChange = (data: FormFieldData) => {
+    setUserData((prev) => ({ ...prev, [data.name]: data.value }));
   };
 
   const handleAppDataClick = (appName: string) => {
@@ -51,14 +109,16 @@ export const Dashboard = () => {
         </span>
         <div className="ml-8 flex flex-col">
           <FormField
+            name="nickname"
             fieldName="nickname"
-            initVal="testtt"
-            onChange={(value) => setNewData((prev) => ({ ...prev, value }))}
+            initVal={userData.nickname}
+            onChange={handleFieldChange}
           />
           <FormField
-            fieldName="connected apps"
-            initVal="test222"
-            onChange={(value) => setNewData((prev) => ({ ...prev, value }))}
+            name="description"
+            fieldName="description"
+            initVal={userData.description}
+            onChange={handleFieldChange}
           />
         </div>
       </div>

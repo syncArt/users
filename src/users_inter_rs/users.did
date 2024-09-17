@@ -68,5 +68,5 @@ type User = record {
 service : {
   getSelf : () -> (Result);
   get_user_by_nickname : (text) -> (Result);
-  update : (UpdateOrCreateUserInput, AppTypeEnum) -> (Result);
+  update : (UpdateOrCreateUserInput) -> (Result);
 }

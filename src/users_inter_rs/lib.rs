@@ -15,13 +15,12 @@ enum AppData {
 async fn get_self() -> Result<User, String> {
     let id = ic_cdk::api::caller();
 
-    // Używamy .await na wywołaniu asynchronicznym
     match users_rs.get_user_from_principal(id).await {
-        Ok((result3,)) => match result3 {            // Rozpakowanie krotki i dopasowanie do Result3
-            Result3::Ok(user) => Ok(user),           // Jeśli Result3 zawiera User, zwróć User
-            Result3::Err(e) => Err(e),               // Jeśli Result3 zawiera String (błąd), zwróć go jako Err
+        Ok((result3,)) => match result3 {
+            Result3::Ok(user) => Ok(user),
+            Result3::Err(e) => Err(e),
         },
-        Err((_, e)) => Err(format!("Error fetching user: {}", e)), // Obsługa błędu z wywołania asynchronicznego
+        Err((_, e)) => Err(format!("Error fetching user: {}", e)),
     }
 }
 
@@ -36,10 +35,10 @@ async fn get_user_by_nickname(name: String) -> Result<User, String> {
 }
 
 #[update]
-async fn update(user: UpdateOrCreateUserInput, app_type: AppTypeEnum) -> Result<User, String> {
+async fn update(user: UpdateOrCreateUserInput) -> Result<User, String> {
     let principal = ic_cdk::api::caller();
 
-    match app_type {
+    match user.app_type {
         AppTypeEnum::Smileyball => {
             match users_rs.update(principal, user).await {
                 Ok((Result3::Ok(updated_user),)) => {
@@ -52,7 +51,6 @@ async fn update(user: UpdateOrCreateUserInput, app_type: AppTypeEnum) -> Result<
         AppTypeEnum::ThruToday => {
             match users_rs.update(principal, user).await {
                 Ok((Result3::Ok(updated_user),)) => {
-                    // Zwrócenie zaktualizowanego użytkownika typu `User`
                     Ok(updated_user)
                 },
                 Ok((Result3::Err(e),)) => Err(format!("Failed to update user for ThruToday: {}", e)),

@@ -12,6 +12,11 @@ enum AppData {
     ThruToday(ThruToday),
 }
 
+#[query]
+fn whoami() -> Principal {
+    ic_cdk::api::caller()
+}
+
 #[update(name = "getSelf")]
 async fn get_self() -> Result<User, String> {
     let id = ic_cdk::api::caller();

@@ -27,6 +27,20 @@ export const getIdentityProvider = () => {
   return idpProvider;
 };
 
+export const getDerivationOrigin = () => {
+  let derivationOrigin;
+  if (typeof window !== "undefined") {
+    const isLocal = process.env.DFX_NETWORK !== "ic";
+    if (isLocal) {
+      derivationOrigin = `http://${process.env.CANISTER_ID_FRONTEND}.localhost:4943`;
+    } else {
+      derivationOrigin = "https://qmg3k-zyaaa-aaaan-qm24a-cai.icp0.io/";
+    }
+  }
+  return derivationOrigin;
+};
+
+
 export const defaultOptions = {
   /**
    *  @type {import("@dfinity/auth-client").AuthClientCreateOptions}
@@ -43,7 +57,8 @@ export const defaultOptions = {
   loginOptions: {
     identityProvider: getIdentityProvider(),
     windowOpenerFeatures:
-      "toolbar=0,location=0,menubar=0,width=500,height=500,left=100,top=100"
+      "toolbar=0,location=0,menubar=0,width=500,height=500,left=100,top=100",
+    derivationOrigin: getDerivationOrigin()
   }
 };
 
@@ -55,6 +70,8 @@ export const defaultOptions = {
  * @returns
  */
 export const useAuthClient = (options = defaultOptions) => {
+  console.log("identityProviderOptions", getIdentityProvider());
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authClient, setAuthClient] = useState(null);
   const [identity, setIdentity] = useState(null);

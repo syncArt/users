@@ -1,7 +1,7 @@
 import EmojiArt from "@/components/EmojiArt";
 import { HeroText } from "@/components/HeroText";
-import DashedBackground from "../assets/dash-animated-background.svg";
-import IILoginImage from "../assets/II-login-button.svg";
+import DashedBackground from "@/assets/dash-animated-background.svg";
+import IILoginImage from "@/assets/II-login-button.svg";
 import { useAuth } from "@/hooks/useAuthClient";
 import { Navigate } from "react-router-dom";
 

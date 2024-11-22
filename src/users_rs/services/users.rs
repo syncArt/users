@@ -26,12 +26,8 @@ thread_local! {
 }
 
 fn validate_input(input: &UpdateOrCreateUserInput) -> Result<(), String> {
-    if let Some(ref general_info) = input.general_info {
-        if general_info.nickname.is_empty() {
-            return Err("You should provide a nickname.".to_string());
-        }
-    } else {
-        return Err("Err. No general info.".to_string());
+    if input.general_info.is_none() && input.apps_data.is_none() {
+        return Err("Either general_info or apps_data must be provided.".to_string());
     }
     Ok(())
 }
@@ -53,7 +49,7 @@ fn handle_create_user(
     }
 }
 
-fn handle_update_user(
+async fn handle_update_user(
     principal: Principal,
     input: UpdateOrCreateUserInput,
     existing_user: &mut User,
@@ -62,12 +58,12 @@ fn handle_update_user(
         update_general_info(principal, general_info)?;
     }
     if let Some(app_data) = input.apps_data.clone() {
-        update_app_data(principal, app_data, input.app_type.clone())?;
+        update_app_data(principal, app_data, input.app_type.clone()).await?;
     }
     Ok(())
 }
 
-pub fn update_or_create(
+pub async fn update_or_create(
     calling_canister: Principal,
     principal: Principal,
     input: UpdateOrCreateUserInput,
@@ -80,7 +76,7 @@ pub fn update_or_create(
 
     if let Ok(mut existing_user) = crate::get_user_from_principal(principal) {
         ic_cdk::println!("Found user and updating: {:?}", existing_user);
-        handle_update_user(principal, input, &mut existing_user)?;
+        handle_update_user(principal, input, &mut existing_user).await?;
         Ok(existing_user)
     } else {
         ic_cdk::println!("Couldnt find a user, creating new one");
@@ -108,26 +104,31 @@ fn create_new_user(
         users_store.borrow_mut().insert(id, new_user.clone());
     });
     ID_STORE.with(|id_store| {
-        id_store.borrow_mut().insert(general_info.nickname.clone(), id);
+        id_store
+            .borrow_mut()
+            .insert(general_info.nickname.clone(), id);
     });
 
     Ok(new_user)
 }
-fn update_app_data(
+async fn update_app_data(
     principal: Principal,
     update_data: AppDataEnum,
     app_type: AppTypeEnum,
 ) -> Result<User, String> {
     let mut existing_user = crate::get_user_from_principal(principal)?;
 
-    existing_user.update_app_data(update_data, app_type);
+    existing_user.update_app_data(update_data, app_type).await?;
 
     USERS_STORE.with(|users_store| {
-        users_store.borrow_mut().insert(principal, existing_user.clone());
+        users_store
+            .borrow_mut()
+            .insert(principal, existing_user.clone());
     });
 
     Ok(existing_user)
 }
+
 fn update_general_info(
     principal: Principal,
     update_data: UpdateGeneralInfoInput,
@@ -202,17 +203,16 @@ pub fn get_app_data_from_user(
         return Err(String::from("illegal_caller"));
     }
 
-    USERS_STORE.with(|users_store| {
-        match users_store.borrow().get(&principal).cloned() {
+    USERS_STORE.with(
+        |users_store| match users_store.borrow().get(&principal).cloned() {
             Some(user) => {
                 let app_key = format!("{:?}", app_type);
                 Ok(user.apps_data.registry.get(&app_key).cloned())
             }
             None => Err(String::from("user_not_found")),
-        }
-    })
+        },
+    )
 }
-
 
 pub fn get_principal_from_nickname(
     calling_canister: Principal,
@@ -252,15 +252,15 @@ pub fn get_general_info_from_user(
         return Err(String::from("illegal_caller"));
     }
 
-    USERS_STORE.with(|users_store| {
-        match users_store.borrow().get(&principal).cloned() {
+    USERS_STORE.with(
+        |users_store| match users_store.borrow().get(&principal).cloned() {
             Some(user) => Ok(GeneralInfo {
                 nickname: user.nickname.clone(),
                 description: user.description.clone(),
             }),
             None => Err(String::from("user_not_found")),
-        }
-    })
+        },
+    )
 }
 
 pub fn remove(calling_canister: Principal, id: Principal) -> Result<String, String> {

@@ -1,4 +1,4 @@
-use crate::structures::smileyball::Smileyball;
+use crate::structures::smileyball::{Smileyball, SmileyballInput};
 use crate::structures::thru_today::ThruToday;
 use candid::{CandidType, Deserialize};
 use std::collections::HashMap;
@@ -14,11 +14,10 @@ pub enum AppTypeEnum {
     Smileyball,
     ThruToday,
     General,
-
 }
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub enum AppDataEnum {
-    Smileyball(Smileyball),
+    Smileyball(SmileyballInput),
     ThruToday(ThruToday),
     General,
 }
@@ -61,7 +60,7 @@ impl User {
         self.description = description;
 
         let initial_app_data = match app_name {
-            AppTypeEnum::Smileyball => AppDataEnum::Smileyball(Smileyball::default()),
+            AppTypeEnum::Smileyball => AppDataEnum::Smileyball(SmileyballInput::default()),
             AppTypeEnum::ThruToday => AppDataEnum::ThruToday(ThruToday::default()),
             AppTypeEnum::General => AppDataEnum::General,
         };
@@ -87,20 +86,34 @@ impl User {
         self
     }
 
-    pub fn update_app_data(
+    pub async fn update_app_data(
         &mut self,
         update_data: AppDataEnum,
         app_type: AppTypeEnum,
-    ) -> &mut Self {
+    ) -> Result<&mut Self, String> {
         let app_key = format!("{:?}", app_type);
 
         if let Some(existing_data) = self.apps_data.registry.get_mut(&app_key) {
             match existing_data {
                 AppDataEnum::Smileyball(existing_smileyball) => {
-                    if let AppDataEnum::Smileyball(new_smileyball) = update_data {
-                        existing_smileyball.update(&new_smileyball);
+                    if let AppDataEnum::Smileyball(input_data) = update_data {
+                        let new_smileyball = Smileyball::from_input(input_data).await?;
+
+                        let mut full_smileyball =
+                            Smileyball::from_input(existing_smileyball.clone()).await?;
+
+                        full_smileyball.update(&new_smileyball).await?;
+
+                        let updated_smileyball_input = SmileyballInput {
+                            is_suspended: Some(full_smileyball.is_suspended),
+                            created_contests: full_smileyball.created_contests.clone(),
+                            voted_songs: full_smileyball.voted_songs.clone(),
+                            won_badges: full_smileyball.won_badges.values().cloned().collect(),
+                        };
+
+                        *existing_smileyball = updated_smileyball_input;
                     } else {
-                        ic_cdk::println!("Mismatched app data type for Smileyball");
+                        return Err("Invalid data type for Smileyball".to_string());
                     }
                 }
                 AppDataEnum::ThruToday(existing_thru_today) => {
@@ -122,7 +135,7 @@ impl User {
             self.apps_data.connected_apps.push(app_type);
         }
 
-        self
+        Ok(self)
     }
 
     pub fn register_new_app(&mut self, app_type: AppTypeEnum) -> &mut Self {

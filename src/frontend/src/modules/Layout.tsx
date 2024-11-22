@@ -1,5 +1,5 @@
 import { Outlet, Navigate } from "react-router-dom";
-import BackgroundShape from "../assets/background.svg";
+import BackgroundShape from "@/assets/background.svg";
 import { useAuth } from "@/hooks/useAuthClient";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";

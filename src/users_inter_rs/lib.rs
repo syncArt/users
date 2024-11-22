@@ -1,14 +1,14 @@
-use candid::{CandidType, Deserialize};
-use ic_cdk::update;
+use candid::{CandidType, Deserialize, Principal};
+use ic_cdk::{query, update};
 
 mod declarations;
 use crate::declarations::users_rs::{
-    GeneralInfo, Result1, Result2, Result4, Smileyball, ThruToday,
+    GeneralInfo, Result1, Result2, Result4, SmileyballInput, ThruToday,
 };
 use declarations::users_rs::{users_rs, AppDataEnum, AppTypeEnum, UpdateOrCreateUserInput, User};
 
 enum AppData {
-    Smileyball(Smileyball),
+    Smileyball(SmileyballInput),
     ThruToday(ThruToday),
 }
 
@@ -50,9 +50,7 @@ async fn get_general_info_from_user() -> Result<GeneralInfo, String> {
 }
 
 #[update]
-async fn get_app_data_from_user(
-    app_type: AppTypeEnum,
-) -> Result<Option<AppDataEnum>, String> {
+async fn get_app_data_from_user(app_type: AppTypeEnum) -> Result<Option<AppDataEnum>, String> {
     let principal = ic_cdk::api::caller();
 
     match users_rs.get_app_data_from_user(principal, app_type).await {

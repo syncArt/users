@@ -32,7 +32,8 @@
         "users-rs"
       ],
       "source": [
-        "src/frontend/dist"
+        "src/frontend/dist",
+        "src/assets"
       ],
       "type": "assets",
       "workspace": "frontend"
@@ -40,14 +41,20 @@
     "internet_identity": {
       "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
       "frontend": {},
+      "id": "bd3sg-teaaa-aaaaa-qaaba-cai",
       "remote": {
         "id": {
           "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
         }
       },
-      "id": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
       "type": "custom",
       "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:4943",
+      "type": "ephemeral"
     }
   },
   "defaults": {

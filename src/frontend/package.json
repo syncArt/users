@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "setup": "npm i && dfx canister create backend_canister && dfx generate backend_canister && dfx deploy",
+    "setup": "node src/scripts/modify_ic_assets.js",
+    "deploy": "npm run build && npm run setup && dfx canister install frontend --mode upgrade",
+    "frontend-canister": "dfx canister create frontend --specified-id asrmz-lmaaa-aaaaa-qaaeq-cai && dfx deploy frontend --specified-id asrmz-lmaaa-aaaaa-qaaeq-cai",
     "start": "vite --port 3000",
     "prebuild": "dfx generate",
     "build": "tsc && vite build",

@@ -55,12 +55,12 @@ fn get_all_users() -> Result<Vec<User>, String> {
 }
 
 #[update]
-fn update(
+async fn update(
     principal: Principal,
     input: crate::services::entities::UpdateOrCreateUserInput,
 ) -> Result<User, String> {
     let calling_canister = ic_cdk::api::caller();
-    users::update_or_create(calling_canister, principal, input)
+    users::update_or_create(calling_canister, principal, input).await
 }
 
 #[update]

@@ -1,6 +1,6 @@
 type AppDataEnum = variant {
   ThruToday : ThruToday;
-  Smileyball : Smileyball;
+  Smileyball : SmileyballInput;
   General;
 };
 type AppTypeEnum = variant { ThruToday; Smileyball; General };
@@ -8,15 +8,10 @@ type AppsData = record {
   registry : vec record { text; AppDataEnum };
   connected_apps : vec AppTypeEnum;
 };
-type ContestData = record {
-  voted : opt vec ContestRecord;
-  lobby : opt vec ContestRecord;
-  historical_data : opt vec ContestRecord;
-};
-type ContestRecord = record {
-  added_at : text;
-  moodmoji : opt Moodmoji;
-  song_id : text;
+type BadgeRecord = record {
+  contest_id : nat64;
+  awarded_at : nat64;
+  song_id : nat64;
 };
 type GeneralInfo = record { nickname : text; description : opt text };
 type Meals = record {
@@ -25,13 +20,6 @@ type Meals = record {
   snacks : text;
   dinner : text;
 };
-type Mood = record {
-  background : text;
-  secondary_emoji : text;
-  name : text;
-  primary_emoji : text;
-};
-type Moodmoji = record { data : vec vec text; mood : Mood };
 type NoteRecord = record {
   meals : Meals;
   to_do : vec ToDo;
@@ -47,10 +35,11 @@ type NoteRecord = record {
 type Result = variant { Ok : User; Err : text };
 type Result_1 = variant { Ok : opt AppDataEnum; Err : text };
 type Result_2 = variant { Ok : GeneralInfo; Err : text };
-type Smileyball = record {
+type SmileyballInput = record {
   is_suspended : opt bool;
-  contest : opt ContestData;
-  moodmoji : opt Moodmoji;
+  won_badges : vec BadgeRecord;
+  voted_songs : vec record { nat64; VotedSongRecord };
+  created_contests : vec nat64;
 };
 type ThruToday = record {
   is_suspended : bool;
@@ -68,10 +57,16 @@ type User = record {
   nickname : text;
   description : opt text;
 };
+type VotedSongRecord = record {
+  voted_at : nat64;
+  vote : nat8;
+  song_id : nat64;
+};
 service : {
   getSelf : () -> (Result);
   get_app_data_from_user : (AppTypeEnum) -> (Result_1);
   get_general_info_from_user : () -> (Result_2);
   get_user_by_nickname : (text) -> (Result);
   update : (UpdateOrCreateUserInput) -> (Result);
+  whoami : () -> (principal) query;
 }

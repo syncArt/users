@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuthClient";
 import { FormField } from "@/components/FormField";
 import { useNavigate } from "react-router-dom";
-import { users_inter_rs } from "declarations/users-inter-rs";
 import {
   optionalCandidValueToValue,
   valueToOptionalCandidValue
 } from "@/utils";
+import { useApi } from "@/hooks/useAuthClient";
 
 export type UserDataType = {
   nickname: string;
@@ -19,17 +18,15 @@ export type FormFieldData = {
 };
 
 export const Dashboard = () => {
-  const [result, setResult] = useState("");
   const [userData, setUserData] = useState<UserDataType>({
     description: "",
     nickname: ""
   });
-
-  const { whoamiActor, logout } = useAuth();
+  const { usersInterRsActor, logout, principal } = useApi();
   const navigate = useNavigate();
 
   const handleUserGeneralData = async () => {
-    await users_inter_rs.get_general_info_from_user().then((res) => {
+    await usersInterRsActor.get_general_info_from_user().then((res) => {
       if ("Ok" in res) {
         const data = res.Ok;
 
@@ -46,22 +43,12 @@ export const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (!!whoamiActor) {
-      const handleWhoami = async () => {
-        const whoami = await whoamiActor?.whoami();
-        setResult(whoami);
-      };
-      handleWhoami();
-    }
-  }, [whoamiActor]);
-
-  useEffect(() => {
     handleUserGeneralData();
   }, []);
 
   const handleSave = async () => {
     console.log(userData);
-    await users_inter_rs
+    await usersInterRsActor
       .update({
         app_type: { General: null },
         general_info: [
@@ -72,7 +59,7 @@ export const Dashboard = () => {
         ],
         apps_data: []
       })
-      .then((res) => {
+      .then(() => {
         console.log("saved");
         handleUserGeneralData();
       });
@@ -98,7 +85,7 @@ export const Dashboard = () => {
           type="text"
           readOnly
           id="whoami"
-          value={result}
+          value={principal?.toString() || ""}
           placeholder="......"
           className="ml-2 flex border-none bg-transparent text-white outline-0"
         />

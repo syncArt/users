@@ -1,15 +1,15 @@
 import { Outlet, Navigate } from "react-router-dom";
 import BackgroundShape from "@/assets/background.svg";
-import { useAuth } from "@/hooks/useAuthClient";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useApi } from "@/hooks/useAuthClient";
 
 export const Layout = ({
                          protectedRoutes = false
                        }: {
   protectedRoutes?: boolean;
 }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useApi();
   const navigate = useNavigate();
 
   useEffect(() => {
